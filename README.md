@@ -29,5 +29,3 @@ analysis workflow using the DESeq2 package in R.
 ## How to Run
 ```r
 source("scripts/deseq2_analysis.R")
-```r
-source("scripts/deseq2_analysis.R")
