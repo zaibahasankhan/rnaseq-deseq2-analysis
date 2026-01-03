@@ -11,6 +11,7 @@ analysis workflow using the DESeq2 package in R.
 ## Tools & Packages
 - R (>= 4.0)
 - DESeq2
+- EnhancedVolcano
 - ggplot2
 - pheatmap
 - dplyr
