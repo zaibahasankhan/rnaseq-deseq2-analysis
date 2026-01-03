@@ -17,7 +17,7 @@
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
-BiocManager::install(c("DESeq2", "EnhancedVolcano"))
+BiocManager::install(c("DESeq2", "EnhancedVolcano", "ggplot2"))
 
 ############################################################
 # STEP 2: Load libraries
@@ -25,7 +25,7 @@ BiocManager::install(c("DESeq2", "EnhancedVolcano"))
 
 library(DESeq2)
 library(EnhancedVolcano)
-
+library(ggplot2)
 ############################################################
 # STEP 3: Load data
 ############################################################
@@ -156,6 +156,20 @@ EnhancedVolcano(res,
                 colConnectors = 'grey50',
                 border = 'full' )
 
+
+dev.off()
+
+############################################################
+# STEP 14: MA PLOT
+############################################################
+pdf("MA_plot_DESeq2.pdf", width = 6, height = 5)
+
+plotMA(
+  res,
+  ylim = c(-5, 5),
+  alpha = 0.05,
+  main = "MA plot"
+)
 
 dev.off()
 
