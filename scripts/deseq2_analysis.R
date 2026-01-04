@@ -4,9 +4,9 @@
 ############################################################
 
 # This script includes:
-# - Loading count data
+# - Loading count data and metadata
 # - DESeq2 end-to-end workflow
-# - Visualization (volcano plot)
+# - Visualization (MA plot, volcano plot, PCA, heatmap)
 # - Saving results
 # - Reproducibility information
 
@@ -17,7 +17,7 @@
 if (!requireNamespace("BiocManager", quietly = TRUE))
   install.packages("BiocManager")
 
-BiocManager::install(c("DESeq2", "EnhancedVolcano", "ggplot2"))
+BiocManager::install(c("DESeq2", "EnhancedVolcano", "ggplot2", "pheatmap"))
 
 ############################################################
 # STEP 2: Load libraries
@@ -26,6 +26,7 @@ BiocManager::install(c("DESeq2", "EnhancedVolcano", "ggplot2"))
 library(DESeq2)
 library(EnhancedVolcano)
 library(ggplot2)
+library(pheatmap)
 ############################################################
 # STEP 3: Load data
 ############################################################
@@ -162,7 +163,7 @@ dev.off()
 ############################################################
 # STEP 14: MA PLOT
 ############################################################
-pdf("MA_plot_DESeq2.pdf", width = 6, height = 5)
+pdf("results/MA_plot_DESeq2.pdf", width = 6, height = 5)
 
 plotMA(
   res,
@@ -174,7 +175,66 @@ plotMA(
 dev.off()
 
 ############################################################
-# STEP 14: Reproducibility
+# STEP 15: Normalized data (median to ratio normalized counts)
+############################################################
+norm_counts <- counts(dds, normalized = TRUE)
+
+
+############################################################
+# STEP 16: PCA plot (sample clustering) on normalized count data
+############################################################
+#VST-transformation
+vsd <- vst(dds, blind = FALSE)
+
+pcaData <- plotPCA(vsd, intgroup = "condition", returnData = TRUE)
+percentVar <- round(100 * attr(pcaData, "percentVar"))
+
+p <- ggplot(pcaData, aes(PC1, PC2, color = condition)) +
+  geom_point(size = 4) +
+  xlab(paste0("PC1: ", percentVar[1], "% variance")) +
+  ylab(paste0("PC2: ", percentVar[2], "% variance")) +
+  theme_minimal() +
+  ggtitle("PCA plot")
+
+pdf("results/PCA_plot.pdf", width = 6, height = 5)
+
+print(p)
+
+dev.off()
+
+############################################################
+# STEP 17: Heatmap
+############################################################
+#vsd <- vst(dds, blind = FALSE) #VST-transformation if not done in PCA step
+
+# Select top 100 DEGs
+topGenes <- head(order(res$padj), 100)
+
+# Extract VST normalized expression
+mat <- assay(vsd)[topGenes, ]
+
+# Center genes (important for visualization)
+mat <- mat - rowMeans(mat)
+
+# Sample annotation
+annotation_col <- as.data.frame(colData(dds)[, "condition", drop = FALSE])
+
+pdf("results/Heatmap_top100_DEGs.pdf", width = 7, height = 8)
+
+pheatmap(
+  mat,
+  annotation_col = annotation_col,
+  show_rownames = TRUE,
+  fontsize_row = 6,
+  cluster_cols = TRUE,
+  cluster_rows = TRUE,
+  scale = "row"
+)
+
+dev.off()
+
+############################################################
+# STEP 18: Reproducibility
 ############################################################
 
 sessionInfo()
