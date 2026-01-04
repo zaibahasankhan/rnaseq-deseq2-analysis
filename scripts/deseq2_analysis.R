@@ -11,13 +11,17 @@
 # - Reproducibility information
 
 ############################################################
-# STEP 1: Package installation (run once if not installed)
+# STEP 1: Required packages
 ############################################################
 
-if (!requireNamespace("BiocManager", quietly = TRUE))
-  install.packages("BiocManager")
-
-BiocManager::install(c("DESeq2", "EnhancedVolcano", "ggplot2", "pheatmap"))
+# NOTE:
+# Required packages should be installed ONCE before running this script.
+# This script assumes the following packages are already installed:
+# - BiocManager
+# - DESeq2
+# - EnhancedVolcano
+# - ggplot2
+# - pheatmap
 
 ############################################################
 # STEP 2: Load libraries
